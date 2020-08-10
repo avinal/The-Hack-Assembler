@@ -1,7 +1,43 @@
 #include "../include/parser.hpp"
 
+inline std::string trim(std::string str)
+{
+    str.erase(0, str.find_first_not_of(" \r\t\v\n"));                 //prefixing spaces
+    str.erase(std::min(str.find_first_of(" /\r\t\v\n"), str.size())); //surfixing spaces
+    return str;
+}
+
+void parser::create_table()
+{
+    std::ifstream firstpass(filename);
+    std::string instruction;
+    int count = -1;
+    if (firstpass.is_open())
+    {
+        while (std::getline(firstpass, instruction))
+        {
+            instruction = trim(instruction);
+            if (!instruction.empty())
+            {
+                if (command_type(instruction) == 'L')
+                {
+                    instruction.erase(0, 1);
+                    instruction.erase(instruction.size() - 1);
+                    table.add_entry(instruction, count + 1);
+                }
+                else
+                {
+                    count++;
+                }
+            }
+        }
+    }
+    firstpass.close();
+}
+
 void parser::assemble()
 {
+    create_table();
     std::ifstream asmfile(filename);
     int pos = filename.find(".");
     filename.erase(pos);
@@ -14,46 +50,47 @@ void parser::assemble()
     {
         while (std::getline(asmfile, instruction))
         {
+            instruction = trim(instruction);
             std::string converted = "";
             std::string binary;
-            instruction.erase(instruction.size() - 1);
-            if (instruction.empty() ||
-                instruction.substr(0, 2) == "//")
-            {
-                continue;
-            }
-            else
+            if (!instruction.empty())
             {
                 switch (command_type(instruction))
                 {
                 case 'A':
                 {
-                    count_ins++;
                     converted += "0";
                     int address;
                     instruction = instruction.substr(1);
-                    if (std::all_of(instruction.begin(),instruction.end(),::isdigit)){
-                        address = std::stoi(instruction);
-                    }else
+                    if (std::all_of(instruction.begin(), instruction.end(), ::isdigit))
                     {
-                        
+                        address = std::stoi(instruction);
                     }
-                    
-                        binary = std::bitset<15>(std::stoi(instruction.substr(1))).to_string();
+                    else
+                    {
+                        if (!table.contains(instruction))
+                        {
+                            address = table.available();
+                            table.add_entry(instruction, address);
+                        }
+                        else
+                        {
+                            address = table.get_address(instruction);
+                        }
+                    }
+                    binary = std::bitset<15>(address).to_string();
                     converted += binary;
                 }
                 break;
                 case 'C':
                 {
-                    count_ins++;
                     auto token = split(instruction);
                     binary = comp(token[1]) + dest(token[0]) + jump(token[2]);
                     converted += "111" + binary;
                 }
                 break;
-                case 'L':
-                    break;
                 default:
+                    continue;
                     break;
                 }
                 if (genfile.is_open())
