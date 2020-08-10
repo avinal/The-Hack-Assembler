@@ -1,26 +1,26 @@
-#pragma once
-#ifdef PARSER_HPP
-#define PARSER_HPP
-
-#include "code.hpp"
 #include <fstream>
+#include <vector>
+#include <unordered_map>
+#include <functional>
+#include <algorithm>
+#include <bitset>
 
-class parser : public code
+class parser
 {
 private:
-    std::ifstream asmfile;
+    std::string filename;
+    int count_ins = 0;
 
 public:
-    parser(std::string input_file);
-    ~parser();
+    parser() {}
+    parser(std::string input_file) : filename(input_file) {}
 
-    bool has_more_commands();
-    void advance();
-    char command_type();
+    void assemble();
+    std::vector<std::array<char, 16>> get_machine_code;
+    char command_type(std::string mnemonic);
     std::string symbol();
-    std::array<char, 3> dest();
-    std::array<char, 7> comp();
-    std::array<char, 3> jump();
+    std::string dest(std::string des);
+    std::string comp(std::string com);
+    std::string jump(std::string jum);
+    std::array<std::string, 3> split(std::string mnemonic);
 };
-
-#endif
