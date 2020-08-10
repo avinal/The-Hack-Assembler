@@ -1,10 +1,10 @@
-#include "../include/code.hpp"
 #include "../include/parser.hpp"
-#include "../include/symbol_table.hpp"
 #include <iostream>
 
 int main(int argc, char const *argv[])
 {
-    std::string asmfile;
+    std::string asmfile(argv[1]);
+    parser pars(asmfile);
+    pars.assemble();
     return 0;
 }
