@@ -1,24 +1,27 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -pedantic-errors -std=c++17
+STDVERSION = -std=c++17
+WARNINGS = -pedantic -Wall -Wfatal-errors -Wextra -Wno-unused-parameter -Wno-unused-variable
 
-OBJECTS = build/parser.o build/code.o build/symbol_table.o
 
 TARGET = assembler
-
-all: $(TARGET)
+OBJ_DIR = build 
+OBJECTS = build/symbol_table.o build/parser.o 
+TEST_OBJS = build/parser_test.o 
+all:$(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) src/Main.cpp $(OBJECTS)
+	$(CXX) $(WARNINGS) $(STDVERSION) -o $(TARGET) src/Main.cpp $(OBJECTS)
 
 
-build/parser.o:src/parser.cpp include/parser.hpp
-	$(CXX) $(CXXFLAGS) -c src/parser.cpp -o build/parser.o
-
-build/code.o:src/code.cpp include/code.hpp
-	$(CXX) $(CXXFLAGS) -c src/code.cpp -o build/code.o
+build/parser.o: src/parser.cpp include/parser.hpp 
+	$(CXX) $(WARNINGS) $(STDVERSION) -c src/parser.cpp -o build/parser.o
 
 build/symbol_table.o:src/symbol_table.cpp include/symbol_table.hpp
-	$(CXX) $(CXXFLAGS) -c src/symbol_table.cpp -o build/symbol_table.o
+	$(CXX) $(STDVERSION) -c src/symbol_table.cpp -o build/symbol_table.o
+
+
+test:
+	$(CXX) $(STDVERSION) tests/*.cpp tests/catch/catch_main.cpp src/parser.cpp src/symbol_table.cpp -o test
 
 clean:
-	rm -f build/*
+	rm -rf build/*.o $(TARGET) test
