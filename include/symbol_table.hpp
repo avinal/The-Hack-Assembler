@@ -32,10 +32,11 @@ private:
         {"SCREEN", 16384},
         {"KBD", 24576},
     };
+    int next = 15;
 
 public:
     symbol_table() {}
-
+    int available();
     void add_entry(std::string symbol, int address);
     bool contains(std::string symbol);
     int get_address(std::string symbol);
