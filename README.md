@@ -44,7 +44,7 @@ This was a nice project and taugh me many things. Given below are some miraculou
         #include <algorithm>
         inline bool isNumber(std::string str)
         {
-            return (!str.empty && std::all_of(str.begin(), str.end(), ::isdigit));
+            return (!str.empty() && std::all_of(str.begin(), str.end(), ::isdigit));
         }
     ```
 2. Trim a string of spaces, tabs, carrige return, vertical tabs, newline chars.
